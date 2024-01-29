@@ -1,0 +1,55 @@
+[versions]
+androidGradlePlugin = "8.2.2"
+hiltPlugin = "2.46"
+kotlin = "1.9.22"
+ktx = "1.12.0"
+composeCompiler = "1.5.8"
+composeBom = "2024.01.00"
+composeActivity = "1.8.2"
+composeViewmodel = "2.7.0"
+composeNavigation = "2.7.6"
+composeMaterial = "1.1.2"
+lifecycleRuntime = "2.6.1"
+retrofit = "2.9.0"
+retrofitGsonConverter = "2.9.0"
+okhttp = "4.11.0"
+coroutines = "1.7.1"
+dagger = "2.46"
+navigation = "2.7.6"
+datastore = "1.0.0"
+room = "2.6.1"
+coil = "2.4.0"
+gson = "2.10"
+
+[libraries]
+core-kotlin = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
+core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "ktx" }
+compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+compose-activity = { group = "androidx.activity", name = "activity-compose", version.ref = "composeActivity" }
+compose-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "composeViewmodel" }
+compose-navigation = { group = "androidx.navigation", name = "navigation-compose", version.ref = "composeNavigation" }
+compose-material = { group = "androidx.compose.material3", name = "material3", version.ref = "composeMaterial" }
+compose-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+compose-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+compose-lifecycle = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleRuntime" }
+compose-lifecycle-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntime" }
+ui-coil = { group = "io.coil-kt", name = "coil", version.ref = "coil" }
+ui-coilCompose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofitGson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofitGsonConverter" }
+okhttp = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
+kotlin-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
+dagger = { group = "com.google.dagger", name = "dagger", version.ref = "dagger" }
+dagger-compiler = { group = "com.google.dagger", name = "dagger-compiler", version.ref = "dagger" }
+navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigation" }
+navigation-ui = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigation" }
+data-dataStore = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
+data-room = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+data-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+data-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+okhttp-logger = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

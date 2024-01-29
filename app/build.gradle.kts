@@ -92,4 +92,11 @@ dependencies {
     // region: utils
     implementation(libs.gson)
     // endregion
+    // region: test
+    testImplementation(libs.test.junit)
+    testImplementation(libs.test.mockk)
+    testImplementation(libs.test.truth)
+    testImplementation(libs.test.coroutines)
+    testImplementation(libs.test.turbine)
+    // endregion
 }

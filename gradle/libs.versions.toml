@@ -25,6 +25,7 @@ mockk = "1.13.5"
 truth = "1.3.0"
 coroutinesTest = "1.8.0-RC2"
 turbine = "1.0.0"
+mockwebserver = "4.11.0"
 
 [libraries]
 core-kotlin = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
@@ -42,7 +43,8 @@ ui-coil = { group = "io.coil-kt", name = "coil", version.ref = "coil" }
 ui-coilCompose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofitGson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofitGsonConverter" }
-okhttp = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+okhttp-logger = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 kotlin-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 dagger = { group = "com.google.dagger", name = "dagger", version.ref = "dagger" }
 dagger-compiler = { group = "com.google.dagger", name = "dagger-compiler", version.ref = "dagger" }
@@ -52,13 +54,13 @@ data-dataStore = { group = "androidx.datastore", name = "datastore-preferences",
 data-room = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 data-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 data-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
-okhttp-logger = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 test-junit = { group = "junit", name = "junit", version.ref = "junit" }
 test-mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 test-truth = { group = "com.google.truth", name = "truth", version.ref = "truth" }
 test-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
 test-turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+test-okhttp-mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "mockwebserver" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }

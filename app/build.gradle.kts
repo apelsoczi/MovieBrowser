@@ -73,14 +73,17 @@ dependencies {
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
     // endregion
-    // region: data
+    // region: network
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logger)
     implementation(libs.retrofit)
     implementation(libs.retrofitGson)
+    // endregion
+    // region data
     implementation(libs.data.dataStore)
     implementation(libs.data.room)
     implementation(libs.data.room.ktx)
     kapt(libs.data.room.compiler)
-    implementation(libs.okhttp.logger)
     // endregion
     // region: coroutines
     implementation(libs.kotlin.coroutines)
@@ -98,5 +101,6 @@ dependencies {
     testImplementation(libs.test.truth)
     testImplementation(libs.test.coroutines)
     testImplementation(libs.test.turbine)
+    testImplementation(libs.test.okhttp.mockwebserver)
     // endregion
 }

@@ -1,0 +1,90 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'androidx.navigation.safeargs.kotlin'
+}
+
+android {
+    compileSdk 33
+
+    defaultConfig {
+        applicationId "com.mbh.moviebrowser"
+        minSdk 24
+        targetSdk 33
+        versionCode 1
+        versionName "1.0"
+
+        buildConfigField 'String', 'API_KEY', "\"3026a59c471f4497650a2fa46a1555cd\""
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility = JavaLanguageVersion.of(17)
+        targetCompatibility = JavaLanguageVersion.of(17)
+    }
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(17)
+        }
+    }
+
+    buildFeatures {
+        compose true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = versions.composeCompiler
+    }
+    namespace 'com.mbh.moviebrowser'
+}
+
+dependencies {
+    // Core
+    implementation core.kotlin
+    implementation core.ktx
+
+    // Compose
+    implementation platform(ui.bom)
+    implementation ui.activity
+    implementation ui.navigation
+    implementation ui.preview
+    implementation ui.tooling
+    implementation ui.viewmodel
+    implementation ui.material
+    implementation ui.coil
+    implementation ui.coilCompose
+
+    // Navigation
+    implementation navigation.navigationFragment
+    implementation navigation.navigationUi
+
+    // Data
+    implementation data.retrofit
+    implementation data.retrofitConverter
+    implementation data.dataStore
+    implementation data.room
+    implementation data.roomKtx
+    implementation data.okhttpLogger
+
+    // Coroutines
+    implementation coroutines.coroutines
+
+    // DI
+    implementation di.dagger
+
+    // Utils
+    implementation utils.gson
+
+    // Kapt
+    kapt annotation.dagger
+    kapt annotation.room
+}

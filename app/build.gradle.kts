@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.android.application)
     kotlin("android")
     kotlin("kapt")
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -84,6 +85,7 @@ dependencies {
     implementation(libs.data.room)
     implementation(libs.data.room.ktx)
     kapt(libs.data.room.compiler)
+    implementation(libs.kotlin.serialization)
     // endregion
     // region: coroutines
     implementation(libs.kotlin.coroutines)

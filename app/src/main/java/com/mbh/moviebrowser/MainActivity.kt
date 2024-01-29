@@ -12,7 +12,9 @@ import com.mbh.moviebrowser.features.movieDetails.MovieDetailsViewModel
 import com.mbh.moviebrowser.features.movieList.MovieListScreen
 import com.mbh.moviebrowser.features.movieList.MovieListViewModel
 import com.mbh.moviebrowser.store.MovieStore
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     val movieStore = MovieStore()

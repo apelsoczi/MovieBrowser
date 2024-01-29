@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.android.application)
     kotlin("android")
     kotlin("kapt")
+    alias(libs.plugins.hilt)
     alias(libs.plugins.kotlin.serialization)
 }
 
@@ -52,6 +53,10 @@ android {
     }
 }
 
+kapt {
+    correctErrorTypes = true
+}
+
 dependencies {
     // region: core
     implementation(libs.core.kotlin)
@@ -69,6 +74,7 @@ dependencies {
     implementation(libs.compose.lifecycle.ktx)
     implementation(libs.ui.coil)
     implementation(libs.ui.coilCompose)
+    implementation(libs.hilt.navigation.compose)
     // endregion
     // region: navigation
     implementation(libs.navigation.fragment)
@@ -91,8 +97,8 @@ dependencies {
     implementation(libs.kotlin.coroutines)
     // endregion
     // region: DI
-    implementation(libs.dagger)
-    kapt(libs.dagger.compiler)
+    implementation(libs.hilt)
+    kapt(libs.hilt.compiler)
     // endregion
     // region: utils
     implementation(libs.gson)

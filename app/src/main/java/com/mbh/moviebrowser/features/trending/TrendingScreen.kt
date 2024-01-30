@@ -1,4 +1,4 @@
-package com.mbh.moviebrowser.features.movieList
+package com.mbh.moviebrowser.features.trending
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
@@ -17,7 +17,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,19 +25,29 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.mbh.moviebrowser.domain.Movie
+import com.mbh.moviebrowser.store.MovieStore
 
 @Composable
-fun MovieListScreen(viewModel: MovieListViewModel, onDetailsClicked: (Movie) -> Unit) {
-    MovieListScreenUI(viewModel.movies.collectAsState().value) {
-        viewModel.storeMovieForNavigation(it)
-        onDetailsClicked(it)
-    }
+fun TrendingScreen(
+    viewModel: TrendingViewModel = hiltViewModel(),
+    onDetailsClicked: (Movie) -> Unit)
+{
+    TrendingScreenContent(
+        movies = MovieStore.movies,
+        onDetailsClicked = {
+            onDetailsClicked(it)
+        }
+    )
 }
 
 @Composable
-fun MovieListScreenUI(movies: List<Movie>, onDetailsClicked: (Movie) -> Unit) {
+fun TrendingScreenContent(
+    movies: List<Movie>,
+    onDetailsClicked: (Movie) -> Unit
+) {
     Text(text = "Movie List")
     LazyColumn(modifier = Modifier.fillMaxWidth()) {
         items(movies) { item ->
@@ -104,8 +113,8 @@ private fun MovieListItem(
     showSystemUi = true,
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
-fun MovieListScreenUIPreview() {
-    MovieListScreenUI(
+fun TrendingScreenContentPreview() {
+    TrendingScreenContent(
         listOf(
             Movie(
                 id = 455476,

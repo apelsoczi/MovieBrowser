@@ -1,11 +1,9 @@
 package com.mbh.moviebrowser.store
 
 import com.mbh.moviebrowser.domain.Movie
-import kotlinx.coroutines.flow.MutableStateFlow
 
-class MovieStore {
-    val movies: MutableStateFlow<List<Movie>> = MutableStateFlow(
-        listOf(
+object MovieStore {
+    val movies: List<Movie> = listOf(
             Movie(
                 id = 455476,
                 title = "Knights of the Zodiac",
@@ -24,7 +22,7 @@ class MovieStore {
                 rating = 7.4f,
                 isFavorite = false,
             ),
-        ),
-    )
-    val detailsId: MutableStateFlow<Long> = MutableStateFlow(-1)
+        )
+
+    val detailsId = movies.first().id
 }

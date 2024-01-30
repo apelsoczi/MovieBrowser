@@ -1,4 +1,4 @@
-package com.mbh.moviebrowser.features.movieDetails
+package com.mbh.moviebrowser.features.details
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
@@ -22,19 +22,24 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.mbh.moviebrowser.domain.Movie
+import com.mbh.moviebrowser.store.MovieStore
 
 @Composable
-fun MovieDetailsScreen(viewModel: MovieDetailsViewModel) {
-    MovieDetailsScreenUI(
-        viewModel.movie.collectAsState(null).value,
-        viewModel::onFavoriteClicked,
+fun DetailsScreen(
+    viewModel: DetailsViewModel = hiltViewModel()
+) {
+    val state = viewModel.state.collectAsState()
+    DetailsScreenContent(
+        movie = MovieStore.movies.first(),
+        onFavoriteClicked = {}
     )
 }
 
 @Composable
-fun MovieDetailsScreenUI(
+private fun DetailsScreenContent(
     movie: Movie?,
     onFavoriteClicked: (Boolean) -> Unit,
 ) {
@@ -91,8 +96,8 @@ fun MovieDetailsScreenUI(
     showSystemUi = true,
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
-fun MovieDetailsScreenUIPreview() {
-    MovieDetailsScreenUI(
+fun DetailsScreenPreview() {
+    DetailsScreenContent(
         movie = Movie(
             id = 123L,
             title = "Example Movie",

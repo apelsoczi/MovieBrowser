@@ -15,3 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "MovieBrowser"
 include(":app")
+include(":api")

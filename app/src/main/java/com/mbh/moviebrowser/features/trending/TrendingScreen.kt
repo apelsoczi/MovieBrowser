@@ -1,107 +1,76 @@
 package com.mbh.moviebrowser.features.trending
 
 import android.content.res.Configuration
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mbh.moviebrowser.domain.Movie
-import com.mbh.moviebrowser.store.MovieStore
+import com.mbh.moviebrowser.features.destinations.DetailsScreenDestination
+import com.mbh.moviebrowser.features.trending.components.MovieList
+import com.mbh.moviebrowser.ui.containers.ErrorContent
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
+@Destination(start = true)
 @Composable
 fun TrendingScreen(
     viewModel: TrendingViewModel = hiltViewModel(),
-    onDetailsClicked: (Movie) -> Unit)
-{
+    navController: DestinationsNavigator,
+) {
+    var initialized by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(initialized) {
+        if (initialized.not()) {
+            viewModel.handle(Actions.Init)
+            initialized = true
+        }
+    }
+
+    val state = viewModel.state.collectAsStateWithLifecycle()
     TrendingScreenContent(
-        movies = MovieStore.movies,
-        onDetailsClicked = {
-            onDetailsClicked(it)
+        loading = state.value.isLoading,
+        error = state.value.isError,
+        movies = state.value.items,
+        handle = {
+            when (it) {
+                is Actions.ClickMovie -> navController.navigate(
+                    DetailsScreenDestination.invoke(it.movie)
+                )
+                else -> viewModel.handle(it)
+            }
         }
     )
 }
 
 @Composable
 fun TrendingScreenContent(
+    loading: Boolean,
+    error: Boolean,
     movies: List<Movie>,
-    onDetailsClicked: (Movie) -> Unit
+    handle: (Actions) -> Unit
 ) {
-    Text(text = "Movie List")
-    LazyColumn(modifier = Modifier.fillMaxWidth()) {
-        items(movies) { item ->
-            MovieListItem(
-                movie = item,
-                onDetailsClicked,
-            )
-        }
-    }
-}
-
-@Composable
-private fun MovieListItem(
-    movie: Movie,
-    onDetailsClicked: (Movie) -> Unit,
-) {
-    Row(
-        Modifier.padding(horizontal = 16.dp, vertical = 8.dp).clickable {
-            onDetailsClicked(movie)
-        },
+    Column(
+        modifier = Modifier.fillMaxSize()
     ) {
-        Box {
-            AsyncImage(
-                model = movie.coverUrl,
-                contentDescription = null,
-                contentScale = ContentScale.FillWidth,
-                modifier = Modifier.width(80.dp).zIndex(1.0f),
+        if (error) {
+            ErrorContent(
+                title = "There was an error",
+                onDismissClick = { handle(Actions.DismissError) },
             )
-            val image = if (movie.isFavorite) {
-                painterResource(id = android.R.drawable.btn_star_big_on)
-            } else {
-                painterResource(id = android.R.drawable.btn_star_big_off)
-            }
-            Image(
-                painter = image,
-                contentDescription = null,
-                modifier = Modifier.padding(all = 4.dp).zIndex(2.0f).align(Alignment.TopEnd),
+        } else {
+            MovieList(
+                loading = loading,
+                movies = movies,
+                onDetailsClicked = { handle(Actions.ClickMovie(it)) },
             )
-        }
-        Spacer(modifier = Modifier.width(16.dp))
-        Column {
-            Text(
-                text = movie.title,
-                style = MaterialTheme.typography.headlineMedium,
-                color = Color.White,
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = movie.genres,
-                style = MaterialTheme.typography.bodyLarge,
-                color = Color.White,
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            LinearProgressIndicator(progress = movie.rating / 10.0f, modifier = Modifier.fillMaxWidth())
         }
     }
 }
@@ -115,7 +84,9 @@ private fun MovieListItem(
 )
 fun TrendingScreenContentPreview() {
     TrendingScreenContent(
-        listOf(
+        loading = false,
+        error = false,
+        movies = listOf(
             Movie(
                 id = 455476,
                 title = "Knights of the Zodiac",
@@ -135,6 +106,6 @@ fun TrendingScreenContentPreview() {
                 isFavorite = false,
             ),
         ),
-        onDetailsClicked = {},
+        handle = {},
     )
 }

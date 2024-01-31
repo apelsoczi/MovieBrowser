@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     kotlin("kapt")
     alias(libs.plugins.hilt)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -12,7 +14,7 @@ android {
 
     defaultConfig {
         applicationId = "com.mbh.moviebrowser"
-        minSdk = 24
+        minSdk = 26
         //noinspection EditedTargetSdkVersion
         targetSdk = 34
         versionCode = 1
@@ -78,11 +80,15 @@ dependencies {
     // region: navigation
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
+    implementation(libs.navigation.destinations)
+    ksp(libs.navigation.destinations.ksp)
     // endregion
     // region: DI
     implementation(libs.hilt)
     kapt(libs.hilt.compiler)
     // endregion
+    // region: data
+    implementation(libs.kotlin.serialization)
     // region: test
     testImplementation(libs.test.junit)
     testImplementation(libs.test.mockk)

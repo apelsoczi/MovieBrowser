@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.ksp)
 }
 
 // TODO: KTIJ-19369

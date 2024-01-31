@@ -1,91 +1,97 @@
 package com.mbh.moviebrowser.features.details
 
 import android.content.res.Configuration
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mbh.moviebrowser.domain.Movie
-import com.mbh.moviebrowser.store.MovieStore
+import com.mbh.moviebrowser.domain.MovieDetail
+import com.mbh.moviebrowser.features.details.components.MovieAudienceContainer
+import com.mbh.moviebrowser.features.details.components.MovieHeroBanner
+import com.mbh.moviebrowser.features.details.components.MoviePlotContainer
+import com.mbh.moviebrowser.ui.containers.ErrorContent
+import com.ramcosta.composedestinations.annotation.Destination
 
+data class DetailsScreenNavArgs(
+    val movie: Movie
+)
+
+@Destination(
+    navArgsDelegate = DetailsScreenNavArgs::class
+)
 @Composable
 fun DetailsScreen(
-    viewModel: DetailsViewModel = hiltViewModel()
+    viewModel: DetailsViewModel = hiltViewModel(),
 ) {
-    val state = viewModel.state.collectAsState()
+    var initialized by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(initialized) {
+        if (initialized.not()) {
+            viewModel.handle(Actions.Init)
+            initialized = true
+        }
+    }
+
+    val state = viewModel.state.collectAsStateWithLifecycle()
     DetailsScreenContent(
-        movie = MovieStore.movies.first(),
-        onFavoriteClicked = {}
+        loading = state.value.isLoading,
+        error = state.value.isError,
+        movie = state.value.movie,
+        handle = { viewModel.handle(it) }
     )
 }
 
 @Composable
 private fun DetailsScreenContent(
-    movie: Movie?,
-    onFavoriteClicked: (Boolean) -> Unit,
+    loading: Boolean,
+    error: Boolean,
+    movie: MovieDetail?,
+    handle: (Actions) -> Unit,
 ) {
-    if (movie == null) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            CircularProgressIndicator()
-        }
+    if (error) {
+        ErrorContent(
+            title = "There was an error",
+            onDismissClick = { handle(Actions.DismissError) },
+        )
         return
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        AsyncImage(
-            model = movie.coverUrl,
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-        val image = if (movie.isFavorite) {
-            painterResource(id = android.R.drawable.btn_star_big_on)
-        } else {
-            painterResource(id = android.R.drawable.btn_star_big_off)
+    if (movie != null) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.verticalScroll(rememberScrollState()),
+        ) {
+            MovieHeroBanner(
+                loading = loading,
+                backdropUrl = movie.backdropUrl,
+                coverUrl = movie.coverUrl,
+                title = movie.title,
+                year = movie.releaseDate,
+            )
+            MovieAudienceContainer(
+                loading = loading,
+                rating = movie.rating,
+                formattedRating = movie.formattedRating,
+                adult = movie.adult
+            )
+            MoviePlotContainer(
+                loading = loading,
+                favorite = movie.isFavorite,
+                tagline = movie.tagline,
+                overview = movie.overview,
+                handle = handle,
+            )
         }
-        Image(
-            painter = image,
-            contentDescription = null,
-            modifier = Modifier.clickable {
-                onFavoriteClicked(!movie.isFavorite)
-            },
-        )
-        Text(
-            text = movie.title,
-            style = MaterialTheme.typography.headlineMedium,
-            color = Color.White,
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = movie.overview ?: "",
-            style = MaterialTheme.typography.bodyLarge,
-            color = Color.White,
-        )
     }
 }
 
@@ -98,15 +104,21 @@ private fun DetailsScreenContent(
 )
 fun DetailsScreenPreview() {
     DetailsScreenContent(
-        movie = Movie(
-            id = 123L,
-            title = "Example Movie",
-            genres = "Action, Adventure, Sci-Fi",
-            overview = "This is an overview of the example movie. It's full of action, adventure and sci-fi elements.",
-            coverUrl = "https://image.tmdb.org/t/p/w300/qW4crfED8mpNDadSmMdi7ZDzhXF.jpg",
-            rating = 4.5f,
+        loading = false,
+        error = false,
+        movie = MovieDetail(
+            id = 572802,
+            title = "Aquaman and the Lost Kingdom",
+            tagline = "The tide is turning.",
+            overview = "Black Manta, still driven by the need to avenge his father's death and wielding the power of the mythic Black Trident, will stop at nothing to take Aquaman down once and for all. To defeat him, Aquaman must turn to his imprisoned brother Orm, the former King of Atlantis, to forge an unlikely alliance in order to save the world from irreversible destruction.",
+            coverUrl = "/7lTnXOy0iNtBAdRP3TZvaKJ77F6.jpg",
+            backdropUrl = "/4gV6FOT4mEF4JaOmurO1kQSQ0Zl.jpg",
+            rating = 6.995f,
+            formattedRating = "6.9",
+            adult = true,
             isFavorite = false,
+            releaseDate = "2023-12-20",
         ),
-        onFavoriteClicked = {},
+        handle = {},
     )
 }

@@ -3,9 +3,11 @@ package com.mbh.moviebrowser.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import com.mbh.moviebrowser.features.destinations.DetailsScreenDestination
+import com.mbh.moviebrowser.features.destinations.TrendingScreenDestination
 import com.mbh.moviebrowser.features.details.DetailsScreen
 import com.mbh.moviebrowser.features.trending.TrendingScreen
+import com.ramcosta.composedestinations.utils.composable
 
 @Composable
 fun MovieBrowserNavHost(
@@ -13,16 +15,14 @@ fun MovieBrowserNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = "list"
+        startDestination = TrendingScreenDestination.route
     ) {
-        composable("list") {
+        composable(TrendingScreenDestination) {
             TrendingScreen(
-                onDetailsClicked = {
-                    navController.navigate("details")
-                },
+                navController = destinationsNavigator(navController)
             )
         }
-        composable("details") {
+        composable(DetailsScreenDestination) {
             DetailsScreen()
         }
     }

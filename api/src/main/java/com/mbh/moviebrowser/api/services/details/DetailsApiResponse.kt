@@ -14,7 +14,7 @@ sealed interface DetailsApiResponse {
     data class MovieDetailDTO(
         val adult: Boolean,
         @SerialName("backdrop_path") val backdropPath: String,
-        @SerialName("belongs_to_collection") val collection: MovieCollectionDTO,
+        @SerialName("belongs_to_collection") val collection: MovieCollectionDTO?,
         val budget: Int,
         val genres: List<GenreDTO>,
         val homepage: String,

@@ -1,14 +1,15 @@
 package com.mbh.moviebrowser.domain
 
-import kotlinx.serialization.Serializable
-
-@Serializable
-data class Movie(
+data class MovieDetail(
     val id: Int,
     val title: String,
-    val genres: String,
+    val tagline: String,
     val overview: String,
     val coverUrl: String,
+    val backdropUrl: String,
     val rating: Float,
+    val formattedRating: String,
+    val adult: Boolean,
     val isFavorite: Boolean,
+    val releaseDate: String,
 )

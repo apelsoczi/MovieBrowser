@@ -12,7 +12,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        minSdk = 24
+        minSdk = 26
 
         buildConfigField("String", "API_KEY", "\"3026a59c471f4497650a2fa46a1555cd\"")
 

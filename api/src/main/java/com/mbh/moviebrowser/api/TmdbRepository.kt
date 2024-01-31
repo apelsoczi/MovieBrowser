@@ -35,4 +35,8 @@ class TmdbRepository @Inject constructor(
         domainException(e)
     }
 
+    fun isFavorite(id: Int): Boolean {
+        return false
+    }
+
 }

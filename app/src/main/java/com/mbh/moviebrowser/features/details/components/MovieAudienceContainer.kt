@@ -25,7 +25,6 @@ import com.mbh.moviebrowser.R
 
 @Composable
 fun MovieAudienceContainer(
-    loading: Boolean,
     rating: Float,
     formattedRating: String,
     adult: Boolean,
@@ -41,12 +40,10 @@ fun MovieAudienceContainer(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 RatingIndicator(
-                    loading = loading,
                     rating = rating,
                     label = formattedRating
                 )
                 AdultIndicator(
-                    loading = loading,
                     adult = adult,
                 )
             }
@@ -55,7 +52,6 @@ fun MovieAudienceContainer(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 GenresRow(
-                    loading = loading,
                     genres = genres,
                 )
             }
@@ -65,7 +61,6 @@ fun MovieAudienceContainer(
 
 @Composable
 private fun RatingIndicator(
-    loading: Boolean,
     rating: Float,
     label: String,
 ) {
@@ -98,7 +93,6 @@ private fun RatingIndicator(
 
 @Composable
 private fun AdultIndicator(
-    loading: Boolean,
     adult: Boolean
 ) {
     if (adult) {
@@ -117,7 +111,6 @@ private fun AdultIndicator(
 @Composable
 fun MovieAudienceContainerPreview() {
     MovieAudienceContainer(
-        loading = false,
         rating = 6.995f,
         formattedRating = "6.9",
         adult = true,

@@ -22,7 +22,6 @@ import coil.compose.AsyncImage
 
 @Composable
 fun MovieHeroBanner(
-    loading: Boolean,
     backdropUrl: String,
     coverUrl: String,
     title: String,
@@ -71,7 +70,6 @@ fun MovieHeroBanner(
 @Composable
 private fun MovieHeroBannerPreview() {
     MovieHeroBanner(
-        loading = false,
         title = "Aquaman and the Lost Kingdom",
         coverUrl = "/7lTnXOy0iNtBAdRP3TZvaKJ77F6.jpg",
         backdropUrl = "/4gV6FOT4mEF4JaOmurO1kQSQ0Zl.jpg",

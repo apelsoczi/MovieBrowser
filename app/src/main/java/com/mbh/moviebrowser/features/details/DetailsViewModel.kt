@@ -10,6 +10,7 @@ import com.mbh.moviebrowser.domain.Movie
 import com.mbh.moviebrowser.domain.MovieDetail
 import com.mbh.moviebrowser.features.destinations.DetailsScreenDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -81,7 +82,11 @@ class DetailsViewModel @Inject constructor(
     }
 
     private fun favorite() {
-
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+            delay(1200)
+            _state.update { it.copy(isLoading = false) }
+        }
     }
 
     private fun dismissError() {

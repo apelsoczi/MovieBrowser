@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun GenresRow(
-    loading: Boolean,
     genres: List<String>
 ) {
     Box {
@@ -46,7 +45,6 @@ fun GenresRow(
 @Composable
 fun GenresListPreview() {
     GenresRow(
-        loading = false,
         genres = listOf("Action", "Adventure", "Comedy")
     )
 }

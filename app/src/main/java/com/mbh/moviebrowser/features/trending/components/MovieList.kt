@@ -11,7 +11,6 @@ import com.mbh.moviebrowser.domain.Movie
 
 @Composable
 fun MovieList(
-    loading: Boolean,
     movies: List<Movie>,
     onDetailsClicked: (Movie) -> Unit,
 ) {
@@ -51,7 +50,6 @@ private fun MovieListPreview() {
                 ),
             ),
             onDetailsClicked = {},
-            loading = false,
         )
     }
 }

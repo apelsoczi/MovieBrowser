@@ -17,6 +17,7 @@ import com.mbh.moviebrowser.domain.Movie
 import com.mbh.moviebrowser.features.destinations.DetailsScreenDestination
 import com.mbh.moviebrowser.features.trending.components.MovieList
 import com.mbh.moviebrowser.ui.containers.ErrorContent
+import com.mbh.moviebrowser.ui.containers.LoadingScreen
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
@@ -65,9 +66,10 @@ fun TrendingScreenContent(
                 title = "There was an error",
                 onDismissClick = { handle(Actions.DismissError) },
             )
+        } else if (loading) {
+            LoadingScreen()
         } else {
             MovieList(
-                loading = loading,
                 movies = movies,
                 onDetailsClicked = { handle(Actions.ClickMovie(it)) },
             )

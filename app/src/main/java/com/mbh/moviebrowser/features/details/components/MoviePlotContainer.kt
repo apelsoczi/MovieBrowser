@@ -27,7 +27,6 @@ import com.mbh.moviebrowser.features.details.Actions
 
 @Composable
 fun MoviePlotContainer(
-    loading: Boolean,
     favorite: Boolean,
     tagline: String,
     overview: String,
@@ -122,7 +121,6 @@ fun MoviePlotContainer(
 @Composable
 private fun DetailedMovieContainterPreview() {
     MoviePlotContainer(
-        loading = false,
         tagline = "The tide is turning.",
         overview = "Black Manta, still driven by the need to avenge his father's death and wielding the power of the mythic Black Trident, will stop at nothing to take Aquaman down once and for all. To defeat him, Aquaman must turn to his imprisoned brother Orm, the former King of Atlantis, to forge an unlikely alliance in order to save the world from irreversible destruction.",
         favorite = true,

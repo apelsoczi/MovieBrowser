@@ -1,7 +1,9 @@
 package com.mbh.moviebrowser.features.details
 
 import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -21,6 +23,8 @@ import com.mbh.moviebrowser.features.details.components.MovieAudienceContainer
 import com.mbh.moviebrowser.features.details.components.MovieHeroBanner
 import com.mbh.moviebrowser.features.details.components.MoviePlotContainer
 import com.mbh.moviebrowser.ui.containers.ErrorContent
+import com.mbh.moviebrowser.ui.containers.LoadingScreen
+import com.mbh.moviebrowser.ui.shimmer.shimmerBrush
 import com.ramcosta.composedestinations.annotation.Destination
 
 data class DetailsScreenNavArgs(
@@ -47,7 +51,7 @@ fun DetailsScreen(
         loading = state.value.isLoading,
         error = state.value.isError,
         movie = state.value.movie,
-        handle = { viewModel.handle(it) }
+        handle = { viewModel.handle(it) },
     )
 }
 
@@ -64,29 +68,27 @@ private fun DetailsScreenContent(
             onDismissClick = { handle(Actions.DismissError) },
         )
         return
-    }
-
-    if (movie != null) {
+    } else {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.verticalScroll(rememberScrollState()),
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .background(shimmerBrush(loading)),
         ) {
             MovieHeroBanner(
-                loading = loading,
                 backdropUrl = movie.backdropUrl,
                 coverUrl = movie.coverUrl,
                 title = movie.title,
                 year = movie.releaseDate,
             )
             MovieAudienceContainer(
-                loading = loading,
                 rating = movie.rating,
                 formattedRating = movie.formattedRating,
                 adult = movie.adult,
                 genres = movie.genres,
             )
             MoviePlotContainer(
-                loading = loading,
                 favorite = movie.isFavorite,
                 tagline = movie.tagline,
                 overview = movie.overview,

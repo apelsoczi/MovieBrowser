@@ -71,7 +71,7 @@ fun MovieListItem(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = movie.genres,
+                text = movie.genres.joinToString(),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.secondary,
             )
@@ -97,7 +97,7 @@ private fun MovieListItemPreview() {
             coverUrl = "/7lTnXOy0iNtBAdRP3TZvaKJ77F6.jpg",
             rating = 6.995f,
             isFavorite = false,
-            genres = "Action, Adventure, Fantasy",
+            genres = listOf("Action", "Adventure", "Fantasy"),
         ),
         onDetailsClicked = {},
     )

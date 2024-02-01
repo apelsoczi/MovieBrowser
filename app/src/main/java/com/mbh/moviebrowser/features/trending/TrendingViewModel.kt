@@ -88,7 +88,7 @@ class TrendingViewModel @Inject constructor(
         Movie(
             id = it.id,
             title = it.title,
-            genres = it.genreIds.joinToString(prefix = "[", postfix = "]"),
+            genres = it.genres,
             overview = it.overview,
             coverUrl = "https://image.tmdb.org/t/p/w500/${it.posterPath}",
             rating = it.voteAverage.toFloat() / 10.0f,

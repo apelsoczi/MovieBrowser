@@ -1,8 +1,11 @@
 package com.mbh.moviebrowser.features.details.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -26,20 +29,36 @@ fun MovieAudienceContainer(
     rating: Float,
     formattedRating: String,
     adult: Boolean,
+    genres: List<String>
 ) {
-    Box {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            RatingIndicator(
-                loading = loading,
-                rating = rating,
-                label = formattedRating,
-            )
-            AdultIndicator(
-                loading = loading,
-                adult = adult,
-            )
+    Box(
+        modifier = Modifier.padding(horizontal = 16.dp),
+    ) {
+        Column {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                RatingIndicator(
+                    loading = loading,
+                    rating = rating,
+                    label = formattedRating
+                )
+                AdultIndicator(
+                    loading = loading,
+                    adult = adult,
+                )
+            }
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                GenresRow(
+                    loading = loading,
+                    genres = genres,
+                )
+            }
         }
     }
 }
@@ -102,5 +121,6 @@ fun MovieAudienceContainerPreview() {
         rating = 6.995f,
         formattedRating = "6.9",
         adult = true,
+        genres = listOf("Action", "Adventure", "Comedy")
     )
 }

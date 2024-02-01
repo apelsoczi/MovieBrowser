@@ -99,6 +99,7 @@ class DetailsViewModel @Inject constructor(
             title = title,
             tagline = tagline,
             overview = overview,
+            genres = movie.genres,
             coverUrl = movie.coverUrl,
             backdropUrl = "https://image.tmdb.org/t/p/original/${backdropPath}",
             rating = voteAverage.toFloat() / 10.0f,

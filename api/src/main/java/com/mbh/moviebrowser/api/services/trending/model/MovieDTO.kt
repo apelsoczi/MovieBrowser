@@ -14,7 +14,7 @@ data class MovieDTO(
     val overview: String,
     @SerialName("poster_path") val posterPath: String?,
     @SerialName("media_type") val mediaType: String,
-    @SerialName("genre_ids") val genreIds: List<Int>,
+    @SerialName("genre_ids") val genres: List<String>,
     val popularity: Double,
     @SerialName("release_date") val releaseDate: String,
     val video: Boolean,

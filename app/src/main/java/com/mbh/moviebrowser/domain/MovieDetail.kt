@@ -5,6 +5,7 @@ data class MovieDetail(
     val title: String,
     val tagline: String,
     val overview: String,
+    val genres: List<String>,
     val coverUrl: String,
     val backdropUrl: String,
     val rating: Float,

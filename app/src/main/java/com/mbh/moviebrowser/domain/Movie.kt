@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class Movie(
     val id: Int,
     val title: String,
-    val genres: String,
+    val genres: List<String>,
     val overview: String,
     val coverUrl: String,
     val rating: Float,

@@ -4,6 +4,8 @@ import com.google.common.truth.Truth.assertThat
 import com.mbh.moviebrowser.api.common.DomainResult
 import com.mbh.moviebrowser.api.services.details.DetailsApiResponse
 import com.mbh.moviebrowser.api.services.details.DetailsDataSource
+import com.mbh.moviebrowser.api.services.genres.GenreApiResponse
+import com.mbh.moviebrowser.api.services.genres.GenreDataSource
 import com.mbh.moviebrowser.api.services.trending.TrendingApiResponse.TrendingErrorDTO
 import com.mbh.moviebrowser.api.services.trending.TrendingApiResponse.TrendingMoviesDTO
 import com.mbh.moviebrowser.api.services.trending.TrendingDataSource
@@ -21,6 +23,7 @@ class TmdbRepositoryTest {
 
     private val trendingDataSource = mockk<TrendingDataSource>()
     private val detailsDataSource = mockk<DetailsDataSource>()
+    private val genresDataSource = mockk<GenreDataSource>()
 
     private lateinit var repository: TmdbRepository
 
@@ -29,6 +32,7 @@ class TmdbRepositoryTest {
         repository = TmdbRepository(
             trendingDataSource = trendingDataSource,
             detailsDataSource = detailsDataSource,
+            genreDataSource = genresDataSource,
         )
     }
 
@@ -37,10 +41,18 @@ class TmdbRepositoryTest {
     @Test
     fun `trending api mapped to success domain model`() = runTest {
         // given
-        val dto = mockk<TrendingMoviesDTO>() {
-            coEvery { results } returns listOf(mockk<MovieDTO>())
+        val movie = mockk<MovieDTO>() {
+            coEvery { genres } returns listOf("1")
+            coEvery { copy(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns this
         }
-        coEvery { trendingDataSource.request(any()) } returns flowOf(dto)
+        val trendingDto = mockk<TrendingMoviesDTO>() {
+            coEvery { results } returns listOf(movie)
+        }
+        val genreDto = mockk<GenreApiResponse.GenresErrorDTO>() {
+
+        }
+        coEvery { trendingDataSource.request(any()) } returns flowOf(trendingDto)
+        coEvery { genresDataSource.cached() } returns flowOf(genreDto)
         // when
         val data = repository.trendingMovies(TrendingTimeWindow.DAY)
         // then
@@ -85,6 +97,7 @@ class TmdbRepositoryTest {
         // then
         assertThat(data).isInstanceOf(DomainResult.Success::class.java)
         coVerify(exactly = 1) { detailsDataSource.request(0) }
+        coVerify(exactly = 0) { genresDataSource.cached() }
     }
 
     @Test
@@ -97,6 +110,7 @@ class TmdbRepositoryTest {
         // then
         assertThat(data).isInstanceOf(DomainResult.Failure::class.java)
         coVerify(exactly = 1) { detailsDataSource.request(0) }
+        coVerify(exactly = 0) { genresDataSource.cached() }
     }
 
     @Test
@@ -108,6 +122,7 @@ class TmdbRepositoryTest {
         // then
         assertThat(data).isInstanceOf(DomainResult.Exception::class.java)
         coVerify(exactly = 1) { detailsDataSource.request(0) }
+        coVerify(exactly = 0) { genresDataSource.cached() }
     }
 
     // endregion

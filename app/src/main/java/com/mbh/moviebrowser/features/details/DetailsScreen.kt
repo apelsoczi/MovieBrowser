@@ -82,7 +82,8 @@ private fun DetailsScreenContent(
                 loading = loading,
                 rating = movie.rating,
                 formattedRating = movie.formattedRating,
-                adult = movie.adult
+                adult = movie.adult,
+                genres = movie.genres,
             )
             MoviePlotContainer(
                 loading = loading,
@@ -111,6 +112,7 @@ fun DetailsScreenPreview() {
             title = "Aquaman and the Lost Kingdom",
             tagline = "The tide is turning.",
             overview = "Black Manta, still driven by the need to avenge his father's death and wielding the power of the mythic Black Trident, will stop at nothing to take Aquaman down once and for all. To defeat him, Aquaman must turn to his imprisoned brother Orm, the former King of Atlantis, to forge an unlikely alliance in order to save the world from irreversible destruction.",
+            genres = listOf("Action", "Adventure", "Comedy"),
             coverUrl = "/7lTnXOy0iNtBAdRP3TZvaKJ77F6.jpg",
             backdropUrl = "/4gV6FOT4mEF4JaOmurO1kQSQ0Zl.jpg",
             rating = 6.995f,

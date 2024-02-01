@@ -2,6 +2,7 @@ package com.mbh.moviebrowser.api.di
 
 import com.mbh.moviebrowser.api.BuildConfig
 import com.mbh.moviebrowser.api.services.details.MoviesService
+import com.mbh.moviebrowser.api.services.genres.GenreService
 import com.mbh.moviebrowser.api.services.trending.TrendingService
 import dagger.Module
 import dagger.Provides
@@ -64,6 +65,13 @@ object NetworkModule {
         retrofit: Retrofit
     ): MoviesService {
         return retrofit.create(MoviesService::class.java)
+    }
+
+    @Provides
+    fun provideGenresApis(
+        retrofit: Retrofit
+    ): GenreService {
+        return retrofit.create(GenreService::class.java)
     }
 
 }

@@ -1,7 +1,9 @@
 package com.mbh.moviebrowser.api.common
 
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
 import retrofit2.Response
@@ -22,6 +24,39 @@ abstract class ApiServiceConsumer<R>(
      */
     abstract val mapper: DataResponseMapper<R>
 
+
+    /**
+     * Represents the cache for the fetched data, initialized as DomainException - NullPointerException
+     * when the cache is empty.
+     */
+    private var cache: DomainResult<R> = DomainResult.domainException(NullPointerException())
+
+    /**
+     * Executes a request to fetch data.
+     * If the cache contains a successful result, emits the cached data wrapped in a Flow.
+     * If the cache does not contain a successful result, initiates a request by executing the given block.
+     *
+     * @param block A suspend function block that returns a Retrofit Response containing a ResponseBody.
+     * @return A Flow emitting a successful result or an exception from the executed block.
+     */
+    protected suspend fun cached(
+        block: suspend () -> Response<ResponseBody>,
+    ): Flow<R> = withContext(ioDispatcher) {
+        if (cache is DomainResult.Success<R>) {
+            flowOf((cache as DomainResult.Success<R>).data)
+        } else {
+            cache = DomainResult.domainException(NullPointerException())
+            request(block)
+        }
+    }
+
+    /**
+     *
+     */
+    internal fun addToCache(dto: DomainResult<R>) {
+        cache = dto
+    }
+
     /**
      * Executes a network request and emits the mapped response.
      *
@@ -31,7 +66,7 @@ abstract class ApiServiceConsumer<R>(
      */
     protected suspend fun request(
         block: suspend () -> Response<ResponseBody>
-    ) = channelFlow<R> {
+    ): Flow<R> = channelFlow<R> {
         withContext(ioDispatcher) {
             try {
                 val response = block.invoke()

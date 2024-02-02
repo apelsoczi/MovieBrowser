@@ -57,6 +57,7 @@ kapt {
 }
 
 dependencies {
+    implementation(project(":domain"))
     implementation(project(":api"))
     // region: core
     implementation(libs.core.kotlin)

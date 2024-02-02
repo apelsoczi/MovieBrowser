@@ -17,18 +17,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mbh.moviebrowser.domain.Movie
-import com.mbh.moviebrowser.domain.MovieDetail
+import com.mbh.moviebrowser.domain.data.MovieEntity
 import com.mbh.moviebrowser.features.details.components.MovieAudienceContainer
 import com.mbh.moviebrowser.features.details.components.MovieHeroBanner
 import com.mbh.moviebrowser.features.details.components.MoviePlotContainer
 import com.mbh.moviebrowser.ui.containers.ErrorContent
-import com.mbh.moviebrowser.ui.containers.LoadingScreen
 import com.mbh.moviebrowser.ui.shimmer.shimmerBrush
 import com.ramcosta.composedestinations.annotation.Destination
 
 data class DetailsScreenNavArgs(
-    val movie: Movie
+    val movie: MovieEntity
 )
 
 @Destination(
@@ -48,9 +46,10 @@ fun DetailsScreen(
 
     val state = viewModel.state.collectAsStateWithLifecycle()
     DetailsScreenContent(
-        loading = state.value.isLoading,
-        error = state.value.isError,
+        loading = state.value.loading,
+        error = state.value.error,
         movie = state.value.movie,
+        isFavorite = state.value.favorite,
         handle = { viewModel.handle(it) },
     )
 }
@@ -59,7 +58,8 @@ fun DetailsScreen(
 private fun DetailsScreenContent(
     loading: Boolean,
     error: Boolean,
-    movie: MovieDetail?,
+    movie: MovieEntity?,
+    isFavorite: Boolean?,
     handle: (Actions) -> Unit,
 ) {
     if (error) {
@@ -69,31 +69,33 @@ private fun DetailsScreenContent(
         )
         return
     } else {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .background(shimmerBrush(loading)),
-        ) {
-            MovieHeroBanner(
-                backdropUrl = movie.backdropUrl,
-                coverUrl = movie.coverUrl,
-                title = movie.title,
-                year = movie.releaseDate,
-            )
-            MovieAudienceContainer(
-                rating = movie.rating,
-                formattedRating = movie.formattedRating,
-                adult = movie.adult,
-                genres = movie.genres,
-            )
-            MoviePlotContainer(
-                favorite = movie.isFavorite,
-                tagline = movie.tagline,
-                overview = movie.overview,
-                handle = handle,
-            )
+        movie?.let {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .background(shimmerBrush(loading)),
+            ) {
+                MovieHeroBanner(
+                    backdropUrl = movie.backdropUrl,
+                    coverUrl = movie.coverUrl,
+                    title = movie.title,
+                    year = movie.releaseDate,
+                )
+                MovieAudienceContainer(
+                    rating = movie.rating,
+                    formattedRating = movie.formattedRating,
+                    adult = movie.adult,
+                    genres = movie.genres,
+                )
+                MoviePlotContainer(
+                    favorite = isFavorite,
+                    tagline = movie.tagline,
+                    overview = movie.overview,
+                    handle = handle,
+                )
+            }
         }
     }
 }
@@ -109,20 +111,8 @@ fun DetailsScreenPreview() {
     DetailsScreenContent(
         loading = false,
         error = false,
-        movie = MovieDetail(
-            id = 572802,
-            title = "Aquaman and the Lost Kingdom",
-            tagline = "The tide is turning.",
-            overview = "Black Manta, still driven by the need to avenge his father's death and wielding the power of the mythic Black Trident, will stop at nothing to take Aquaman down once and for all. To defeat him, Aquaman must turn to his imprisoned brother Orm, the former King of Atlantis, to forge an unlikely alliance in order to save the world from irreversible destruction.",
-            genres = listOf("Action", "Adventure", "Comedy"),
-            coverUrl = "/7lTnXOy0iNtBAdRP3TZvaKJ77F6.jpg",
-            backdropUrl = "/4gV6FOT4mEF4JaOmurO1kQSQ0Zl.jpg",
-            rating = 6.995f,
-            formattedRating = "6.9",
-            adult = true,
-            isFavorite = false,
-            releaseDate = "2023-12-20",
-        ),
+        movie = MovieEntity.SAMPLE_MOVIE,
+        isFavorite = false,
         handle = {},
     )
 }

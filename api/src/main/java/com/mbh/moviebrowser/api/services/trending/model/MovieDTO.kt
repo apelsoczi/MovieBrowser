@@ -6,13 +6,13 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class MovieDTO(
     val adult: Boolean,
-    @SerialName("backdrop_path") val backdropPath: String?,
+    @SerialName("backdrop_path") val backdropPath: String,
     val id: Int,
     val title: String,
     @SerialName("original_language") val originalLanguage: String,
     @SerialName("original_title") val originalTitle: String,
     val overview: String,
-    @SerialName("poster_path") val posterPath: String?,
+    @SerialName("poster_path") val posterPath: String,
     @SerialName("media_type") val mediaType: String,
     @SerialName("genre_ids") val genres: List<String>,
     val popularity: Double,

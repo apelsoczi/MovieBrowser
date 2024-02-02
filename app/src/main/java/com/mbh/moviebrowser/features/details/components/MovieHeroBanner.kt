@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.mbh.moviebrowser.domain.data.MovieEntity
 
 @Composable
 fun MovieHeroBanner(
@@ -70,9 +71,9 @@ fun MovieHeroBanner(
 @Composable
 private fun MovieHeroBannerPreview() {
     MovieHeroBanner(
-        title = "Aquaman and the Lost Kingdom",
-        coverUrl = "/7lTnXOy0iNtBAdRP3TZvaKJ77F6.jpg",
-        backdropUrl = "/4gV6FOT4mEF4JaOmurO1kQSQ0Zl.jpg",
+        title = MovieEntity.SAMPLE_MOVIE.title,
+        coverUrl = MovieEntity.SAMPLE_MOVIE.coverUrl,
+        backdropUrl = MovieEntity.SAMPLE_MOVIE.backdropUrl,
         year = "2023",
     )
 }

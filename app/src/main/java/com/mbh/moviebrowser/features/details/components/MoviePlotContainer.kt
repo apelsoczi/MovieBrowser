@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,7 +29,7 @@ import com.mbh.moviebrowser.features.details.Actions
 
 @Composable
 fun MoviePlotContainer(
-    favorite: Boolean,
+    favorite: Boolean?,
     tagline: String,
     overview: String,
     handle: (Actions) -> Unit,
@@ -37,38 +39,41 @@ fun MoviePlotContainer(
         Modifier.padding(18.dp)
     ) {
         // favorite button
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .zIndex(1.0F),
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            val image = if (favorite) {
-                painterResource(id = R.drawable.btn_star_big_on)
-            } else {
-                painterResource(id = R.drawable.btn_star_big_off)
-            }
-            val shape = if (favorite) FloatingActionButtonDefaults.shape else CircleShape
-            FloatingActionButton(
-                onClick = { handle(Actions.Favorite) },
-                shape = shape,
-                elevation = FloatingActionButtonDefaults.elevation(
-                    defaultElevation = 0.dp,
-                    pressedElevation = 0.dp,
-                    focusedElevation = 0.dp,
-                    hoveredElevation = 0.dp,
-                ),
-                modifier = Modifier.border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    shape = shape,
-                ),
+        favorite?.let {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .zIndex(1.0F),
+                horizontalArrangement = Arrangement.Center,
             ) {
-                Image(
-                    painter = image,
-                    contentDescription = null,
-                )
+                val image = if (favorite) {
+                    painterResource(id = R.drawable.btn_star_big_on)
+                } else {
+                    painterResource(id = R.drawable.btn_star_big_off)
+                }
+                val shape = if (favorite) FloatingActionButtonDefaults.shape else CircleShape
+                FloatingActionButton(
+                    onClick = { handle(Actions.Favorite) },
+                    shape = shape,
+                    elevation = FloatingActionButtonDefaults.elevation(
+                        defaultElevation = 0.dp,
+                        pressedElevation = 0.dp,
+                        focusedElevation = 0.dp,
+                        hoveredElevation = 0.dp,
+                    ),
+                    modifier = Modifier.border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        shape = shape,
+                    ),
+                ) {
+                    Image(
+                        painter = image,
+                        contentDescription = null,
+                        modifier = Modifier.width(32.dp).height(32.dp),
+                    )
+                }
             }
         }
 

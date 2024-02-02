@@ -2,15 +2,17 @@ package com.mbh.moviebrowser.features.trending
 
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
-import com.mbh.moviebrowser.api.TmdbRepository
 import com.mbh.moviebrowser.api.common.DomainResult.Companion.domainException
 import com.mbh.moviebrowser.api.common.DomainResult.Companion.domainFailure
 import com.mbh.moviebrowser.api.common.DomainResult.Companion.domainSuccess
-import com.mbh.moviebrowser.api.services.trending.model.MovieDTO
+import com.mbh.moviebrowser.domain.data.MovieEntity
+import com.mbh.moviebrowser.domain.usecase.FavoritesListUseCase
+import com.mbh.moviebrowser.domain.usecase.TrendingMoviesTodayUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -23,31 +25,17 @@ class TrendingViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
 
-    private val repository = mockk<TmdbRepository>()
-    private val movieDto = MovieDTO(
-        adult = false,
-        backdropPath = "/cnqwv5Uz3UW5f086IWbQKr3ksJr.jpg",
-        id = 572802,
-        title = "Aquaman and the Lost Kingdom",
-        originalLanguage = "en",
-        originalTitle = "Aquaman and the Lost Kingdom",
-        overview = "Black Manta, still driven by the need to avenge his father's death and wielding the power of the mythic Black Trident, will stop at nothing to take Aquaman down once and for all. To defeat him, Aquaman must turn to his imprisoned brother Orm, the former King of Atlantis, to forge an unlikely alliance in order to save the world from irreversible destruction.",
-        posterPath = "/7lTnXOy0iNtBAdRP3TZvaKJ77F6.jpg",
-        mediaType = "movie",
-        genres = listOf("Action", "Adventure", "Fantasy"),
-        popularity = 6996.108,
-        releaseDate = "2023-12-20",
-        video = false,
-        voteAverage = 7.015,
-        voteCount = 1100
-    )
+    private val trendingMoviesTodayUseCase = mockk<TrendingMoviesTodayUseCase>()
+    private val favoritesListUseCase = mockk<FavoritesListUseCase>()
+    private val movie = MovieEntity.SAMPLE_MOVIE
 
     lateinit var viewModel: TrendingViewModel
 
     @Before
     fun setup() {
         viewModel = TrendingViewModel(
-            repository = repository,
+            trendingMoviesUseCase = trendingMoviesTodayUseCase,
+            favoritesListUseCase = favoritesListUseCase,
         )
         Dispatchers.setMain(testDispatcher)
     }
@@ -62,8 +50,9 @@ class TrendingViewModelTest {
     @Test
     fun `init and load data from repository as domain success`() = runTest {
         // given
-        val data = listOf(movieDto)
-        coEvery { repository.trendingMovies(any()) } returns domainSuccess(data)
+        val data = listOf(movie)
+        coEvery { trendingMoviesTodayUseCase() } returns domainSuccess(data)
+        coEvery { favoritesListUseCase.invoke() } returns flowOf(data)
         // when
         viewModel.handle(Actions.Init)
         viewModel.state.test {
@@ -72,17 +61,20 @@ class TrendingViewModelTest {
                 assertThat(it.isLoading)
             }
             awaitItem().let {
-                assertThat(it.items.first().id).isEqualTo(movieDto.id)
+                assertThat(it.items).isNotEmpty()
+                assertThat(it.favorites.isNotEmpty())
                 assertThat(it.isLoading).isFalse()
             }
         }
-        coVerify(exactly = 1) { repository.trendingMovies(any()) }
+        coVerify(exactly = 1) { trendingMoviesTodayUseCase() }
+        coVerify(exactly = 2) { favoritesListUseCase() }
     }
 
     @Test
     fun `init and load data from repository as domain failure`() = runTest {
         // given
-        coEvery { repository.trendingMovies(any()) } returns domainFailure("")
+        coEvery { trendingMoviesTodayUseCase() } returns domainFailure("")
+        coEvery { favoritesListUseCase.invoke() } returns flowOf(emptyList())
         // when
         viewModel.handle(Actions.Init)
         viewModel.state.test {
@@ -93,13 +85,15 @@ class TrendingViewModelTest {
                 assertThat(it.isError)
             }
         }
-        coVerify(exactly = 1) { repository.trendingMovies(any()) }
+        coVerify(exactly = 1) { trendingMoviesTodayUseCase() }
+        coVerify(exactly = 1) { favoritesListUseCase() }
     }
 
     @Test
     fun `init and load data from repository as domain exception`() = runTest {
         // given
-        coEvery { repository.trendingMovies(any()) } returns domainException(mockk())
+        coEvery { trendingMoviesTodayUseCase() } returns domainException(mockk())
+        coEvery { favoritesListUseCase.invoke() } returns flowOf(emptyList())
         // when
         viewModel.handle(Actions.Init)
         viewModel.state.test {
@@ -110,7 +104,8 @@ class TrendingViewModelTest {
                 assertThat(it.isError)
             }
         }
-        coVerify(exactly = 1) { repository.trendingMovies(any()) }
+        coVerify(exactly = 1) { trendingMoviesTodayUseCase() }
+        coVerify(exactly = 1) { favoritesListUseCase() }
     }
 
     // endregion
@@ -120,8 +115,9 @@ class TrendingViewModelTest {
     @Test
     fun `dismiss error loads data`() = runTest {
         // given
-        val data = listOf(movieDto)
-        coEvery { repository.trendingMovies(any()) } returns domainException(mockk())
+        val data = listOf(movie)
+        coEvery { trendingMoviesTodayUseCase() } returns domainException(mockk())
+        coEvery { favoritesListUseCase.invoke() } returns flowOf(data)
         viewModel.handle(Actions.Init)
         // when
         viewModel.handle(Actions.DismissError)
@@ -132,7 +128,8 @@ class TrendingViewModelTest {
             }
             skipItems(1)
         }
-        coVerify(exactly = 1) { repository.trendingMovies(any()) }
+        coVerify(exactly = 1) { trendingMoviesTodayUseCase() }
+        coVerify(exactly = 1) { favoritesListUseCase() }
     }
 
     // endregion

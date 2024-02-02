@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mbh.moviebrowser.domain.Movie
+import com.mbh.moviebrowser.domain.data.MovieEntity
 import com.mbh.moviebrowser.features.destinations.DetailsScreenDestination
 import com.mbh.moviebrowser.features.trending.components.MovieList
 import com.mbh.moviebrowser.ui.containers.ErrorContent
@@ -40,6 +40,7 @@ fun TrendingScreen(
         loading = state.value.isLoading,
         error = state.value.isError,
         movies = state.value.items,
+        favorites = state.value.favorites,
         handle = {
             when (it) {
                 is Actions.ClickMovie -> navController.navigate(
@@ -55,7 +56,8 @@ fun TrendingScreen(
 fun TrendingScreenContent(
     loading: Boolean,
     error: Boolean,
-    movies: List<Movie>,
+    movies: List<MovieEntity>,
+    favorites: List<MovieEntity>,
     handle: (Actions) -> Unit
 ) {
     Column(
@@ -71,6 +73,7 @@ fun TrendingScreenContent(
         } else {
             MovieList(
                 movies = movies,
+                favorites = favorites,
                 onDetailsClicked = { handle(Actions.ClickMovie(it)) },
             )
         }
@@ -85,29 +88,15 @@ fun TrendingScreenContent(
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 fun TrendingScreenContentPreview() {
+    val favoriteMovie = MovieEntity.SAMPLE_MOVIE.copy(id = 0, adult = true)
     TrendingScreenContent(
         loading = false,
         error = false,
         movies = listOf(
-            Movie(
-                id = 455476,
-                title = "Knights of the Zodiac",
-                genres = listOf("Action, Sci-fi"),
-                overview = "When a headstrong street orphan, Seiya, in search of his abducted sister unwittingly taps into hidden powers, he discovers he might be the only person alive who can protect a reincarnated goddess, sent to watch over humanity. Can he let his past go and embrace his destiny to become a Knight of the Zodiac?",
-                coverUrl = "https://image.tmdb.org/t/p/w500/qW4crfED8mpNDadSmMdi7ZDzhXF.jpg",
-                rating = 6.5f,
-                isFavorite = true,
-            ),
-            Movie(
-                id = 385687,
-                title = "Fast X",
-                genres = listOf("Action"),
-                overview = "Over many missions and against impossible odds, Dom Toretto and his family have outsmarted, out-nerved and outdriven every foe in their path. Now, they confront the most lethal opponent they've ever faced: A terrifying threat emerging from the shadows of the past who's fueled by blood revenge, and who is determined to shatter this family and destroy everything—and everyone—that Dom loves, forever.",
-                coverUrl = "https://image.tmdb.org/t/p/w500/fiVW06jE7z9YnO4trhaMEdclSiC.jpg",
-                rating = 7.4f,
-                isFavorite = false,
-            ),
+            favoriteMovie,
+            MovieEntity.SAMPLE_MOVIE,
         ),
+        favorites = listOf(favoriteMovie),
         handle = {},
     )
 }

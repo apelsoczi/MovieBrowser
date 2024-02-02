@@ -1,9 +1,10 @@
 package com.mbh.moviebrowser.features.details
 
-import com.mbh.moviebrowser.domain.MovieDetail
+import com.mbh.moviebrowser.domain.data.MovieEntity
 
 data class DetailsViewState(
-    val isLoading: Boolean = false,
-    val isError: Boolean = false,
-    val movie: MovieDetail? = null,
+    val loading: Boolean = false,
+    val error: Boolean = false,
+    val movie: MovieEntity? = null,
+    val favorite: Boolean? = null,
 )

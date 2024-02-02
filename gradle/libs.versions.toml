@@ -30,6 +30,7 @@ truth = "1.3.0"
 coroutinesTest = "1.8.0-RC2"
 turbine = "1.0.0"
 mockwebserver = "4.11.0"
+espresso = "3.5.1"
 
 [libraries]
 core-kotlin = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
@@ -69,6 +70,7 @@ test-truth = { group = "com.google.truth", name = "truth", version.ref = "truth"
 test-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
 test-turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 test-okhttp-mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "mockwebserver" }
+test-espresso = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }

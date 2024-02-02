@@ -2,20 +2,24 @@ package com.mbh.moviebrowser.features.details
 
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
-import com.mbh.moviebrowser.api.TmdbRepository
-import com.mbh.moviebrowser.api.common.DomainResult
+import com.mbh.moviebrowser.api.common.DomainResult.Companion.domainException
+import com.mbh.moviebrowser.api.common.DomainResult.Companion.domainFailure
+import com.mbh.moviebrowser.api.common.DomainResult.Companion.domainSuccess
 import com.mbh.moviebrowser.api.services.details.DetailsApiResponse
 import com.mbh.moviebrowser.api.services.details.model.GenreDTO
 import com.mbh.moviebrowser.api.services.details.model.MovieCollectionDTO
-import com.mbh.moviebrowser.domain.Movie
+import com.mbh.moviebrowser.domain.data.MovieEntity
+import com.mbh.moviebrowser.domain.usecase.FavoritesListUseCase
+import com.mbh.moviebrowser.domain.usecase.SaveFavoriteMovieUseCase
+import com.mbh.moviebrowser.domain.usecase.ViewMovieDetailsUseCase
 import com.mbh.moviebrowser.features.destinations.DetailsScreenDestination
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.mockkObject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -28,7 +32,6 @@ class DetailsViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
 
-    private val repository = mockk<TmdbRepository>()
     private val movieDto = DetailsApiResponse.MovieDetailDTO(
         adult = false,
         backdropPath = "/path/to/backdrop.jpg",
@@ -40,9 +43,9 @@ class DetailsViewModelTest {
         ),
         budget = 10000000,
         genres = listOf(
-            GenreDTO(id = 28, name = "Action"),
-            GenreDTO(id = 12, name = "Adventure"),
-            GenreDTO(id = 14, name = "Fantasy")
+            GenreDTO(id = "28", name = "Action"),
+            GenreDTO(id = "12", name = "Adventure"),
+            GenreDTO(id = "14", name = "Fantasy")
         ),
         homepage = "https://www.example.com",
         id = 123456,
@@ -66,15 +69,11 @@ class DetailsViewModelTest {
         voteCount = 1000
     )
 
-    private val movie = Movie(
-        id = movieDto.id,
-        title = movieDto.title,
-        genres = listOf("Action", "Adventure", "Fantasy"),
-        overview = movieDto.overview,
-        coverUrl = "https://image.tmdb.org/t/p/w500/${movieDto.posterPath}",
-        rating = movieDto.voteAverage.toFloat(),
-        isFavorite = false,
-    )
+    private val movie = MovieEntity.SAMPLE_MOVIE
+
+    private val viewMovieDetailsUseCase = mockk<ViewMovieDetailsUseCase>()
+    private val saveFavoriteMoviesUseCase = mockk<SaveFavoriteMovieUseCase>()
+    private val favoritesListUseCase = mockk<FavoritesListUseCase>()
 
     val savedStateHandle = SavedStateHandle()
 
@@ -86,7 +85,9 @@ class DetailsViewModelTest {
         coEvery { DetailsScreenDestination.argsFrom(savedStateHandle).movie } returns movie
         viewModel = DetailsViewModel(
             savedStateHandle = savedStateHandle,
-            repository = repository,
+            viewMovieDetailsUseCase = viewMovieDetailsUseCase,
+            saveFavoriteMovieUseCase = saveFavoriteMoviesUseCase,
+            favoritesListUseCase = favoritesListUseCase,
         )
         Dispatchers.setMain(testDispatcher)
     }
@@ -101,54 +102,62 @@ class DetailsViewModelTest {
     @Test
     fun `init and load data from repository as domain success`() = runTest {
         // given
-        coEvery { repository.movieDetail(any()) } returns DomainResult.domainSuccess(movieDto)
+        coEvery { viewMovieDetailsUseCase(any()) } returns domainSuccess(movie)
+        coEvery { favoritesListUseCase() } returns flowOf(listOf(movie))
         // when
         viewModel.handle(Actions.Init)
         viewModel.state.test {
             // then
             awaitItem().let {
-                Truth.assertThat(it.isLoading)
+                assertThat(it.loading)
             }
+            skipItems(1)
             awaitItem().let {
-                assertThat(it.isLoading).isFalse()
-                assertThat(it.movie?.id).isEqualTo(movieDto.id)
+                assertThat(it.loading).isFalse()
+                assertThat(it.movie).isNotNull()
+                assertThat(it.favorite).isTrue()
             }
         }
-        coVerify(exactly = 1) { repository.movieDetail(movieDto.id) }
+        coVerify(exactly = 1) { viewMovieDetailsUseCase(movie.id) }
+        coVerify(exactly = 2) { favoritesListUseCase() }
     }
 
     @Test
     fun `init and load data from repository as domain failure`() = runTest {
         // given
-        coEvery { repository.movieDetail(any()) } returns DomainResult.domainFailure("")
+        coEvery { viewMovieDetailsUseCase(any()) } returns domainFailure("")
+        coEvery { favoritesListUseCase() } returns flowOf(emptyList())
         // when
         viewModel.handle(Actions.Init)
         viewModel.state.test {
-            skipItems(1)
+            skipItems(2)
             // then
             awaitItem().let {
-                assertThat(it.isLoading).isFalse()
-                assertThat(it.isError)
+                assertThat(it.loading).isFalse()
+                assertThat(it.error)
             }
         }
-        coVerify(exactly = 1) { repository.movieDetail(movieDto.id) }
+        coVerify(exactly = 1) { viewMovieDetailsUseCase(movie.id) }
+        coVerify(exactly = 1) { favoritesListUseCase() }
     }
 
     @Test
     fun `init and load data from repository as domain exception`() = runTest {
         // given
-        coEvery { repository.movieDetail(any()) } returns DomainResult.domainException(mockk())
+        coEvery { viewMovieDetailsUseCase(any()) } returns domainException(mockk())
+        coEvery { favoritesListUseCase() } returns flowOf(emptyList())
         // when
         viewModel.handle(Actions.Init)
         viewModel.state.test {
-            skipItems(1)
+            skipItems(2)
             // then
             awaitItem().let {
-                assertThat(it.isLoading).isFalse()
-                assertThat(it.isError)
+                assertThat(it.loading).isFalse()
+                assertThat(it.error)
             }
         }
-        coVerify(exactly = 1) { repository.movieDetail(movieDto.id) }
+        coVerify(exactly = 1) { viewMovieDetailsUseCase(movie.id) }
+        coVerify(exactly = 1) { favoritesListUseCase() }
     }
 
     // endregion
@@ -158,21 +167,40 @@ class DetailsViewModelTest {
     @Test
     fun `dismiss error loads data`() = runTest {
         // given
-        val data = listOf(movieDto)
-        coEvery { repository.movieDetail(any()) } returns DomainResult.domainException(mockk())
+        coEvery { viewMovieDetailsUseCase(any()) } returns domainException(mockk())
+        coEvery { favoritesListUseCase() } returns flowOf(listOf())
         viewModel.handle(Actions.Init)
         // when
         viewModel.handle(Actions.DismissError)
         // then
         viewModel.state.test {
             awaitItem().let {
-                assertThat(it.isLoading)
+                assertThat(it.loading)
             }
-            skipItems(1)
+            skipItems(2)
         }
-        coVerify { repository.movieDetail(movieDto.id) }
+        coVerify(exactly = 1) { viewMovieDetailsUseCase(movie.id) }
+        coVerify(exactly = 1) { favoritesListUseCase() }
     }
 
     // endregion
+
+    @Test
+    fun `verify submitting favorite action to view model`() = runTest {
+        // given
+        coEvery { viewMovieDetailsUseCase(any()) } returns domainSuccess(movie)
+        coEvery { favoritesListUseCase() } returns flowOf(listOf(movie))
+        coEvery { saveFavoriteMoviesUseCase(any()) } returns Unit
+        viewModel.handle(Actions.Init)
+        // when
+        viewModel.handle(Actions.Favorite)
+        // then
+        viewModel.state.test {
+            skipItems(3)
+        }
+        coVerify(exactly = 1) { viewMovieDetailsUseCase(movie.id) }
+        coVerify(exactly = 2) { favoritesListUseCase() }
+        coVerify { saveFavoriteMoviesUseCase(movie) }
+    }
 
 }

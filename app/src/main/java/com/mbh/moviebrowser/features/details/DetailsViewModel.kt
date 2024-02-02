@@ -3,20 +3,20 @@ package com.mbh.moviebrowser.features.details
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mbh.moviebrowser.api.TmdbRepository
 import com.mbh.moviebrowser.api.common.DomainResult
-import com.mbh.moviebrowser.api.services.details.DetailsApiResponse
-import com.mbh.moviebrowser.domain.Movie
-import com.mbh.moviebrowser.domain.MovieDetail
+import com.mbh.moviebrowser.domain.usecase.FavoritesListUseCase
+import com.mbh.moviebrowser.domain.usecase.SaveFavoriteMovieUseCase
+import com.mbh.moviebrowser.domain.usecase.ViewMovieDetailsUseCase
 import com.mbh.moviebrowser.features.destinations.DetailsScreenDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import javax.inject.Inject
 
 sealed class Actions {
@@ -31,50 +31,70 @@ sealed class Actions {
 
 @HiltViewModel
 class DetailsViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
-    private val repository: TmdbRepository,
+    savedStateHandle: SavedStateHandle,
+    private val viewMovieDetailsUseCase: ViewMovieDetailsUseCase,
+    private val saveFavoriteMovieUseCase: SaveFavoriteMovieUseCase,
+    private val favoritesListUseCase: FavoritesListUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(DetailsViewState())
     val state: StateFlow<DetailsViewState> = _state.asStateFlow()
 
+    val movieId = DetailsScreenDestination.argsFrom(savedStateHandle).movie.id
+
     fun handle(action: Actions) = when (action) {
-        Actions.Init -> loadDetail()
+        Actions.Init -> init()
         Actions.Favorite -> favorite()
         Actions.DismissError -> dismissError()
     }
 
-    private fun loadDetail() {
-        if (_state.value.isLoading) return
+    private fun init() {
+        observeFavoritesList()
+        loadDetail()
+    }
 
-        _state.update {
-            it.copy(
-                isLoading = true
-            )
+    private fun observeFavoritesList() {
+        viewModelScope.launch {
+            favoritesListUseCase()
+                .map { favorites -> favorites.map { it.id } }
+                .map { ids -> ids.contains(movieId) }
+                .collect { favorite ->
+                    _state.update {
+                        it.copy(favorite = favorite)
+                    }
+                }
         }
+    }
 
-        val movie = DetailsScreenDestination.argsFrom(savedStateHandle).movie
+    private fun loadDetail() {
+        if (_state.value.loading) return
+
+        _state.update { it.copy(loading = true) }
 
         viewModelScope.launch {
-            val result = repository.movieDetail(movie.id)
+            val result = viewMovieDetailsUseCase(movieId)
             when (result) {
                 is DomainResult.Success -> _state.update {
                     it.copy(
-                        isLoading = false,
-                        isError = false,
-                        movie = result.data.toDetailedMovie(movie)
+                        loading = false,
+                        error = false,
+                        movie = result.data,
+                        favorite = favoritesListUseCase()
+                            .map { favorites -> favorites.map { it.id } }
+                            .map { ids -> ids.contains(movieId) }
+                            .first()
                     )
                 }
                 is DomainResult.Failure -> _state.update {
                     it.copy(
-                        isLoading = false,
-                        isError = true,
+                        loading = false,
+                        error = true,
                     )
                 }
                 is DomainResult.Exception -> _state.update {
                     it.copy(
-                        isLoading = false,
-                        isError = true,
+                        loading = false,
+                        error = true,
                     )
                 }
             }
@@ -82,38 +102,21 @@ class DetailsViewModel @Inject constructor(
     }
 
     private fun favorite() {
+        _state.update { it.copy(loading = true) }
+
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
+            _state.value.movie?.let {
+                saveFavoriteMovieUseCase(it)
+            }
+//            // let the ui animation run for a while
             delay(1200)
-            _state.update { it.copy(isLoading = false) }
+            _state.update { it.copy(loading = false) }
         }
     }
 
     private fun dismissError() {
-        _state.update {
-            it.copy(
-                isError = false,
-            )
-        }
+        _state.update { it.copy(error = false) }
         loadDetail()
-    }
-
-    private fun DetailsApiResponse.MovieDetailDTO.toDetailedMovie(movie: Movie): MovieDetail {
-        return MovieDetail(
-            id = movie.id,
-            title = title,
-            tagline = tagline,
-            overview = overview,
-            genres = movie.genres,
-            coverUrl = movie.coverUrl,
-            backdropUrl = "https://image.tmdb.org/t/p/original/${backdropPath}",
-            rating = voteAverage.toFloat() / 10.0f,
-            formattedRating = voteAverage.toString().substring(0, voteAverage.toString()
-                .indexOf('.') + 2).replace(".0", ""),
-            adult = adult,
-            isFavorite = false,
-            releaseDate = LocalDate.parse(releaseDate).year.toString(),
-        )
     }
 
 }
